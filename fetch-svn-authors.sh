@@ -43,7 +43,7 @@ NAME
 \n
 \nBASIC EXAMPLES
 \n\t# Use the long parameter names
-\n\t$script --url-file=my-repository-list.txt --destination=authors-file.txt
+\n\t$script --url-file=my-repository-list.txt --destination=authors-file.txt --svnbin=/usr/local/java/jsvn
 \n
 \n\t# Use short parameter names and redirect standard output
 \n\t$script -u my-repository-list.txt > authors-file.txt
@@ -56,6 +56,7 @@ EOF_HELP
 
 # Set defaults for any optional parameters or arguments.
 destination='';
+svn_bin="svn"; # default from PATH
 
 # Process parameters.
 until [[ -z "$1" ]]; do
@@ -96,6 +97,8 @@ until [[ -z "$1" ]]; do
     url-file )     url_file=$value;;
     d )            destination=$value;;
     destination )  destination=$value;;
+    s )            svn_bin=$value;;
+    svnbin )      svn_bin=$value;;
 
     h )            echo $help | less >&2; exit;;
     help )         echo $help | less >&2; exit;;
@@ -135,7 +138,7 @@ do
   # Process the log of each Subversion URL.
   echo "Processing \"$name\" repository at $url..." >&2;
   /bin/echo -n "  " >&2;
-  svn log -q $url | awk -F '|' '/^r/ {sub("^ ", "", $2); sub(" $", "", $2); print $2" = "$2" <"$2">"}' | sort -u >> $tmp_file;
+  $svn_bin log -q $url | awk -F '|' '/^r/ {sub("^ ", "", $2); sub(" $", "", $2); print $2" = "$2" <"$2">"}' | sort -u >> $tmp_file;
   echo "Done." >&2;
 done < $url_file
 

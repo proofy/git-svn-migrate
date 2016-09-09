@@ -69,7 +69,7 @@ NAME
 \n
 \nBASIC EXAMPLES
 \n\t# Use the long parameter names
-\n\t$script --url-file=my-repository-list.txt --authors-file=authors-file.txt --destination=/var/git
+\n\t$script --url-file=my-repository-list.txt --authors-file=authors-file.txt --destination=/var/git --svn-layout=\"--stdlayout\"
 \n
 \n\t# Use short parameter names
 \n\t$script -u my-repository-list.txt -a authors-file.txt /var/git
@@ -85,6 +85,7 @@ EOF_HELP
 destination='.';
 gitinit_params='';
 gitsvn_params='';
+svn_layout=''
 
 # Process parameters.
 until [[ -z "$1" ]]; do
@@ -124,6 +125,8 @@ until [[ -z "$1" ]]; do
     destination )     destination=$value;;
     i )               ignore_file=$value;;
     ignore-file )     ignore_file=$value;;
+    l )               svn_layout=$value;;
+    svn-layout )      svn_layout=$value;;
     shared )          if [[ $value == '' ]]; then
                         gitinit_params="--shared";
                       else
@@ -199,7 +202,7 @@ do
   # Clone the original Subversion repository to a temp repository.
   cd $pwd;
   echo "- Cloning repository..." >&2;
-  git svn clone $url -A $authors_file --authors-prog=$dir/svn-lookup-author.sh --stdlayout --quiet $gitsvn_params $tmp_destination;
+  git svn clone $url -A $authors_file --authors-prog=$dir/svn-lookup-author.sh $svn_layout --quiet $gitsvn_params $tmp_destination;
 
   # Create .gitignore file.
   echo "- Converting svn:ignore properties into a .gitignore file..." >&2;
